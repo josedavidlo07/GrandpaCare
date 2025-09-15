@@ -5,24 +5,36 @@ namespace App\Http\Controllers;
 use App\Models\Medicamento;
 use App\Models\User;
 use App\Models\Cita;
+use App\Models\SaludRegistro;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class DoctorController extends Controller
 {
     // Mostrar la vista principal del doctor
-    public function index()
-    {
-        $doctor = Auth::user();
-        $totalPacientes = $doctor->pacientes()->count(); // Contar pacientes asignados
-        $proximasCitas = Cita::where('doctor_id', $doctor->id)
-                            ->where('fecha', '>=', now())
-                            ->orderBy('fecha', 'asc')
-                            ->limit(5)
-                            ->get();
+   public function index()
+{
+    $doctor = Auth::user();
+    
+    // Obtener todos los pacientes asignados al doctor
+    $pacientes = $doctor->pacientes;
 
-        return view('home.doctor', compact('doctor', 'totalPacientes', 'proximasCitas'));
-    }
+    // Contar pacientes asignados
+    $totalPacientes = $pacientes->count();
+
+    $proximasCitas = Cita::where('doctor_id', $doctor->id)
+                        ->where('fecha', '>=', now())
+                        ->orderBy('fecha', 'asc')
+                        ->limit(5)
+                        ->get();
+
+    dd($pacientes); // Para ver qué datos contiene la variable $pacientes
+
+    return view('home.doctor', compact('doctor', 'totalPacientes', 'proximasCitas', 'pacientes'));
+}
+
+
+
 
     // Mostrar el formulario para asignar un paciente
     public function asignarPaciente()
@@ -155,7 +167,43 @@ class DoctorController extends Controller
     return redirect()->route('home')->with('success', 'Medicamento eliminado exitosamente.');
     }
 
+    public function asignarSalud($id)
+    {
+        $paciente = User::findOrFail($id);
 
+        return view('home.asignar-salud', compact('paciente'));
+    }
 
+    public function storeSalud(Request $request, $id)
+    {
+    $request->validate([
+        'presion_sistolica' => 'required|integer',
+        'presion_diastolica' => 'required|integer',
+        'glucosa_mg_dl' => 'required|integer',
+        'frecuencia_cardiaca' => 'required|integer',
+        'peso_kg' => 'required|numeric',
+        'estatura_cm' => 'required|numeric',
+        'fecha' => 'required|date',
+    ]);
+
+    $paciente = User::findOrFail($id);
+
+    // Crear un nuevo registro de salud
+    $salud = new SaludRegistro([
+        'patient_id' => $paciente->id,
+        'doctor_id' => Auth::id(),  // El doctor actual
+        'presion_sistolica' => $request->presion_sistolica,
+        'presion_diastolica' => $request->presion_diastolica,
+        'glucosa_mg_dl' => $request->glucosa_mg_dl,
+        'frecuencia_cardiaca' => $request->frecuencia_cardiaca,
+        'peso_kg' => $request->peso_kg,
+        'estatura_cm' => $request->estatura_cm,
+        'fecha' => $request->fecha,
+    ]);
+
+    $salud->save();
+
+    return redirect()->route('home')->with('success', 'Resultados de salud registrados correctamente.');
+    }
 
 }

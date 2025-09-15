@@ -51,6 +51,9 @@ Route::middleware(['auth', 'doctor'])->prefix('home')->name('home.')->group(func
     Route::get('medicamento/{id}/edit', [DoctorController::class, 'editarMedicamento'])->name('medicamento.edit');
     Route::put('medicamento/{id}', [DoctorController::class, 'actualizarMedicamento'])->name('medicamento.update');
     Route::delete('medicamento/{id}', [DoctorController::class, 'eliminarMedicamento'])->name('medicamento.destroy');
+
+    Route::get('pacientes/{id}/asignar-salud', [DoctorController::class, 'asignarSalud'])->name('asignar-salud');
+    Route::post('pacientes/{id}/asignar-salud', [DoctorController::class, 'storeSalud'])->name('store-salud');
 });
 
 // Home invocable (si llaman index por error, también está implementado)

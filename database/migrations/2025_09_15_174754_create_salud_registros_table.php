@@ -10,7 +10,6 @@ return new class extends Migration {
         Schema::create('salud_registros', function (Blueprint $table) {
             $table->id();
             $table->foreignId('patient_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('doctor_id')->nullable()->constrained('users')->onDelete('set null');
             $table->smallInteger('presion_sistolica')->nullable();   // ej. 120
             $table->smallInteger('presion_diastolica')->nullable();  // ej. 80
             $table->smallInteger('glucosa_mg_dl')->nullable();       // ej. 95

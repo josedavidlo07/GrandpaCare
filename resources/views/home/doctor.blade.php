@@ -7,7 +7,7 @@
     <h1 class="section-title mb-4">Panel del Doctor</h1>
     <p class="muted mb-4">Bienvenido(a), {{ Auth::user()->name }}.</p>
 
-    {{-- Menú de opciones para asignación --}}
+    {{-- Menú de opciones --}}
     <div class="row g-3 mb-4">
       <div class="col-12 col-md-6 col-lg-4">
         <div class="card shadow-sm">
@@ -33,20 +33,16 @@
         </div>
       </div>
 
-      {{-- Nuevo botón: Gestionar Medicamentos --}}
+      {{-- Nuevo botón: Registrar Resultados de Salud --}}
       <div class="col-12 col-md-6 col-lg-4">
         <div class="card shadow-sm">
-          <div class="card-body">
-            <h5 class="card-title">Gestionar Medicamentos</h5>
-            <p class="card-text">Ver y editar los medicamentos asignados a tus pacientes.</p>
-            <a href="{{ route('home.medicamentos') }}" class="btn btn-outline-primary w-100">
-              Gestionar Medicamentos
-            </a>
+  
+
           </div>
         </div>
       </div>
 
-      {{-- Nuevo botón: Ver Pacientes --}}
+      {{-- Ver Pacientes --}}
       <div class="col-12 col-md-6 col-lg-4">
         <div class="card shadow-sm">
           <div class="card-body">
