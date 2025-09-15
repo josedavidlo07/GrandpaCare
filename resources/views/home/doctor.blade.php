@@ -33,14 +33,20 @@
         </div>
       </div>
 
-      {{-- Nuevo botón: Registrar Resultados de Salud --}}
+      {{-- Nuevo botón: Gestionar Medicamentos --}}
       <div class="col-12 col-md-6 col-lg-4">
         <div class="card shadow-sm">
-  
-
+          <div class="card-body">
+            <h5 class="card-title">Gestionar Medicamentos</h5>
+            <p class="card-text">Ver y editar los medicamentos asignados a tus pacientes.</p>
+            <a href="{{ route('home.medicamentos') }}" class="btn btn-outline-primary w-100">
+              Gestionar Medicamentos
+            </a>
           </div>
         </div>
       </div>
+
+
 
       {{-- Ver Pacientes --}}
       <div class="col-12 col-md-6 col-lg-4">
