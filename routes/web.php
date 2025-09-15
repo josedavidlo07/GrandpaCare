@@ -7,6 +7,7 @@ use App\Http\Controllers\SaludController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CitaController;
+use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 
@@ -28,6 +29,30 @@ Route::get('/', function () {
     return Auth::check() ? redirect()->route('home') : redirect()->route('login');
 })->name('root');
 
+Route::middleware(['auth', 'doctor'])->prefix('home')->name('home.')->group(function () {
+    // Ruta principal del doctor, cargando la vista doctor.blade.php
+    Route::get('/', [DoctorController::class, 'index'])->name('doctor'); // Esta es la ruta 'home.doctor'
+
+    // Asignar pacientes
+    Route::get('asignar-paciente', [DoctorController::class, 'asignarPaciente'])->name('asignar-paciente');
+    Route::post('asignar-paciente', [DoctorController::class, 'storePaciente'])->name('store-paciente');
+
+    // Asignar medicamentos
+    Route::get('asignar-medicamento', [DoctorController::class, 'asignarMedicamento'])->name('asignar-medicamento');
+    Route::post('asignar-medicamento', [DoctorController::class, 'storeMedicamento'])->name('store-medicamento');
+
+    // Ver pacientes asignados
+    Route::get('pacientes', [DoctorController::class, 'verPacientes'])->name('pacientes');
+
+    // Ver detalles de un paciente
+    Route::get('pacientes/{id}', [DoctorController::class, 'showPaciente'])->name('paciente.show');
+
+    Route::get('medicamentos', [DoctorController::class, 'gestionarMedicamentos'])->name('medicamentos');
+    Route::get('medicamento/{id}/edit', [DoctorController::class, 'editarMedicamento'])->name('medicamento.edit');
+    Route::put('medicamento/{id}', [DoctorController::class, 'actualizarMedicamento'])->name('medicamento.update');
+    Route::delete('medicamento/{id}', [DoctorController::class, 'eliminarMedicamento'])->name('medicamento.destroy');
+});
+
 // Home invocable (si llaman index por error, también está implementado)
 Route::get('/home', HomeController::class)
     ->middleware('auth')
@@ -38,59 +63,9 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('citas', CitaController::class);
 });
 
-Route::middleware('auth')->group(function () {
-    // Rutas para las vistas
-    Route::get('/recordatorios', [RecordatorioController::class, 'indexView']);
-    Route::get('/recordatorios/{id}', [RecordatorioController::class, 'showView']);
-    Route::get('/salud', [SaludController::class, 'indexView']);
-    Route::get('/salud/{id}', [SaludController::class, 'showView']);
-});
 
-Route::middleware('auth')->group(function () {
-    // Mostrar todos los recordatorios
-    Route::get('/recordatorios', [RecordatorioController::class, 'indexView'])->name('recordatorios.index');
-    
-    // Ver un recordatorio específico
-    Route::get('/recordatorios/{id}', [RecordatorioController::class, 'showView'])->name('recordatorios.show');
-    
-    // Crear un nuevo recordatorio (muestra el formulario)
-    Route::get('/recordatorios/create', [RecordatorioController::class, 'createView'])->name('recordatorios.create');
-    
-    // Guardar el nuevo recordatorio
-    Route::post('/recordatorios', [RecordatorioController::class, 'store'])->name('recordatorios.store');
-    
-    // Eliminar un recordatorio
-    Route::delete('/recordatorios/{id}', [RecordatorioController::class, 'destroy'])->name('recordatorios.destroy');
-    
-    // Actualizar un recordatorio (muestra el formulario de edición)
-    Route::get('/recordatorios/{id}/edit', [RecordatorioController::class, 'editView'])->name('recordatorios.edit');
-    
-    // Actualizar el recordatorio
-    Route::put('/recordatorios/{id}', [RecordatorioController::class, 'update'])->name('recordatorios.update');
-});
 
-Route::middleware('auth')->group(function () {
-    // Mostrar todos los registros de salud
-    Route::get('/salud', [SaludController::class, 'indexView'])->name('salud.index');
-    
-    // Ver un registro de salud específico
-    Route::get('/salud/{id}', [SaludController::class, 'showView'])->name('salud.show');
-    
-    // Crear un nuevo registro de salud (muestra el formulario)
-    Route::get('/salud/create', [SaludController::class, 'createView'])->name('salud.create');
-    
-    // Guardar el nuevo registro de salud
-    Route::post('/salud', [SaludController::class, 'store'])->name('salud.store');
-    
-    // Eliminar un registro de salud
-    Route::delete('/salud/{id}', [SaludController::class, 'destroy'])->name('salud.destroy');
-    
-    // Actualizar un registro de salud (muestra el formulario de edición)
-    Route::get('/salud/{id}/edit', [SaludController::class, 'editView'])->name('salud.edit');
-    
-    // Actualizar el registro de salud
-    Route::put('/salud/{id}', [SaludController::class, 'update'])->name('salud.update');
-});
+
 
 Route::get('/dashboard', [HomeController::class, 'index'])->middleware(['auth'])->name('dashboard');
 

@@ -57,6 +57,11 @@ class User extends Authenticatable
     return $this->belongsToMany(User::class, 'doctor_patient', 'doctor_id', 'patient_id')
                 ->as('asignacion'); // ahora $p->asignacion->doctor_id, etc.
     }
+    
+    public function citas()
+    {
+    return $this->hasMany(Cita::class, 'patient_id');
+    }
 
     public function doctores()
     {

@@ -6,7 +6,7 @@ use App\Models\Cita;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Response;
-
+use App\Models\User;
 
 class CitaController extends Controller
 {
@@ -49,30 +49,42 @@ class CitaController extends Controller
 
     public function store(Request $request)
     {
-        $user = Auth::user();
-        if (!method_exists($user,'esDoctor') || !$user->esDoctor()) {
-            abort(403, 'Solo el doctor puede crear citas.');
-        }
+    // Obtener el usuario autenticado
+    $user = Auth::user();
 
-        $data = $request->validate([
-            'patient_id' => ['required','exists:users,id'],
-            'titulo' => ['required','string','max:255'],
-            'descripcion' => ['nullable','string','max:2000'],
-            'fecha' => ['required','date'],
-            'estado' => ['nullable','string','max:50'],
-        ]);
+    // Validar si es doctor
+    if (!method_exists($user, 'esDoctor') || !$user->esDoctor()) {
+        abort(403, 'Solo el doctor puede crear citas.');
+    }
 
-        $esMiPaciente = $user->pacientes()->where('users.id', $data['patient_id'])->exists();
-        if (!$esMiPaciente) {
-            abort(403, 'Ese paciente no está asignado a este doctor.');
-        }
+    // Validar los datos del formulario
+    $data = $request->validate([
+        'patient_id' => ['required', 'exists:users,id'], // Aseguramos que el paciente existe en la base de datos
+        'titulo' => ['required', 'string', 'max:255'],
+        'descripcion' => ['nullable', 'string', 'max:2000'],
+        'fecha' => ['required', 'date'],
+        'estado' => ['nullable', 'string', 'max:50'],
+    ]);
 
-        $data['doctor_id'] = $user->id;
-        $data['estado'] = $data['estado'] ?? 'programada';
+    // Verificar que el paciente esté asignado al doctor
+    $esMiPaciente = $user->pacientes()->where('users.id', $data['patient_id'])->exists();
+    if (!$esMiPaciente) {
+        abort(403, 'Ese paciente no está asignado a este doctor.');
+    }
 
-        Cita::create($data);
+    // Asignamos el doctor a la cita y definimos el estado por defecto si no está presente
+    $data['doctor_id'] = $user->id;
+    $data['estado'] = $data['estado'] ?? 'programada'; // Si no tiene estado, se asigna 'programada' por defecto
 
-        return redirect()->route('citas.index')->with('success','Cita creada.');
+    // Crear la cita en la base de datos
+    $cita = Cita::create($data);
+
+    // Asignar el paciente al doctor en la tabla pivote (opcional si no se hace en el formulario)
+    // Si usas la relación muchos a muchos, puedes asignar el paciente aquí también si lo necesitas
+    // $user->pacientes()->attach($data['patient_id']); // Esto solo si no estás usando el campo 'patient_id' para guardarlo en la tabla 'citas'
+
+    // Redirigir con un mensaje de éxito
+    return redirect()->route('citas.index')->with('success', 'Cita creada con éxito.');
     }
 
     public function show($id)

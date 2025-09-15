@@ -65,7 +65,7 @@ class HomeController extends Controller
             $imc = $m > 0 ? round($salud->peso_kg / ($m*$m), 1) : null;
         }
 
-        return view('home.paciente', compact('user','proximasCitas','salud','imc','meds'));
+        return view('paciente.paciente', compact('user','proximasCitas','salud','imc','meds'));
     }
     public function index()
     {
